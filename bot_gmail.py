@@ -13,20 +13,19 @@ try:
 	import config3 # Токен бота
 	import requests # Для получения данных с сайта
 	import pyowm # Модуль для роботы с погодой
-	from bs4 import BeautifulSoup as bs # Парсинг курса доллара
-	from firebase import firebase # Подключаю базу данных, чтоб записать данные пользователя
+	from bs4 import BeautifulSoup as bs 
+	from firebase import firebase # Подключаю базу данных, чтоб получить свои данные
 	import firebase_admin
 	from firebase_admin import credentials
 	from firebase_admin import db
-	import mimetypes
-	import base64
+	
 
 except ImportError as e:
 	print("Какой-то модуль не заработал !! ")
 
-cred = credentials.Certificate("telergram_bot_key.json")
+cred = credentials.Certificate("файл.json")
 firebase_admin.initialize_app(cred,{
-	"databaseURL":"https://bot--telegram-228.firebaseio.com/"
+	"databaseURL":"ссылка на базу данных"
 	})
 
 images_formats = ".bmp",".jpg",".png",".gif",".jpeg",".tif"
@@ -35,8 +34,6 @@ tables_formats = ".csv",".xls",".xlsx",".xlsm",".ods"
 archive_formats = ".rar",".zip",".tg"
 
 # ref = db.reference('/')
-
-
 ref = db.reference('my_data')
 ref_data = ref.get()
 
@@ -48,12 +45,10 @@ url_usa = 'https://www.google.com/search?q=%D0%BA%D1%83%D1%80%D1%81+%D0%B4%D0%BE
 page_usa = requests.get(url_usa,headers = HEADERS)
 soup = bs(page_usa.content,'lxml')
 
-owm = pyowm.OWM('ff46a20765614ebaf32f1ed12e89bb0e', language = "RU") # Создаём аккаунт на OpenWeatherMap и вставляем APi-ключ сюда
+owm = pyowm.OWM('API-ключ', language = "RU") # Создаём аккаунт на OpenWeatherMap и вставляем APi-ключ сюда
 
 user_dict = {} # Словарь для хранения информации.После перезапуска всё удаляется
 user_photo = {} # Словарь для хранения фото от пользователя.Тоже удаляется после перезапуска
-
-teach = {'nem': 'pipoks@meta.ua','fiz':"anisimovakm@ukr.net",'geo':"zazymko69@ukr.net",'ukr':"lubovsan282@gmail.com",'my':"kupruhintimofej@gmail.com"} # Этот словарь хранит ключи с почтами
 
 markup_types = types.ReplyKeyboardMarkup(resize_keyboard = True,one_time_keyboard = True)
 btn_1 = types.KeyboardButton('Документ')
@@ -81,16 +76,6 @@ button4 = types.KeyboardButton('Оставить сообщение пустым
 button2 = types.KeyboardButton('Отменить отправку.')
 markup_mess2.add(button4,button2)
 
-markup_gmails = types.ReplyKeyboardMarkup(resize_keyboard = True,one_time_keyboard = True,row_width = 3)
-
-button1 = types.KeyboardButton('Немецкий')
-button2 = types.KeyboardButton('Отменить отправку.')
-button3 = types.KeyboardButton('Физ-ра')
-button4 = types.KeyboardButton('География')
-button5 = types.KeyboardButton('Украинский')
-button6 = types.KeyboardButton('Моя почта вторая')
-markup_gmails.add(button1,button6,button3,button4,button5,button2)
-
 markup_gdz = types.InlineKeyboardMarkup(row_width = 2)
 
 btn = types.InlineKeyboardButton('Геометрия', url = 'https://vshkole.com/8-klass/reshebniki/geometriya/ag-merzlyak-vb-polonskij-ms-yakir-2016')
@@ -109,9 +94,9 @@ class User:
 			self.key = None # Каждое из них равняется None
 
 class User2:
-	def __init__(self,photo1):
-		self.photo1 = photo1
-		keys = ['photo2','photo3','photo4','photo5'] # Фото
+	def __init__(self,file):
+		self.file = file
+		keys = ['file2','file3','file4','file5'] # Файлы
 
 		for key in keys:
 			self.key = None
@@ -120,6 +105,7 @@ class User2:
 def dollar(message):
 
 	us = soup.findAll('div',class_ = 'dDoNo vk_bk gsrt gzfeS') # Получаем блок div
+	
 	for dollar in us:
 		curs_us = dollar.find('span',{'class':"DFlfde SwHCTb"}).get("data-value")
 	bot.send_message(message.chat.id,"Курс доллара в гривны: {0}".format(curs_us)) # Выводим значение курса
@@ -172,14 +158,14 @@ def random(message):
 def random2(message):
 	mess = message.text
 
-	markup_chrom = types.ReplyKeyboardMarkup(resize_keyboard = True,one_time_keyboard = True) # CREATING SECOND KEYBOARD
+	markup_chrom = types.ReplyKeyboardMarkup(resize_keyboard = True,one_time_keyboard = True)
 	button1 = types.KeyboardButton('Да')
 	button2 = types.KeyboardButton('Нет')
 	markup_chrom.add(button1,button2)
 
 	if mess == "Генерация рандомного числа":
 		bot.send_message(message.chat.id,"Рандомное число:")
-		bot.send_message(message.chat.id,(str(randint(1,500)))) # GENERATION NUMBER
+		bot.send_message(message.chat.id,(str(randint(1,500))))
 
 	else:
 		bot.send_message(message.text.id,"Такого я не понимаю.")
@@ -203,14 +189,14 @@ def random3(message):
 	else:
 		bot.send_message(message.text.id,"Такого я не понимаю.")
 
-# THE NEXT COMMAND 'SEND'
+# Главная команда для отправки сообщений
 @bot.message_handler(commands=["send"])
 
 def send_message(message):
 	chat_id = message.chat.id
 	user_id = message.from_user.id
 	try:
-		if user_id == 1074201738:
+		if user_id == мой user_id:
 			msg = bot.send_message(message.chat.id,'Можешь ввести свою почту:',reply_markup = markup_exit)
 		
 		else:
@@ -221,9 +207,9 @@ def send_message(message):
 
 	
 	bot.register_next_step_handler(msg,ret) # Переход в другую функцию
-		
+
+# Я знаю, что херово назвал функции просто не было времени таким заниматся
 def ret(message):
-	gmails = "@gmail.com","@ukr.net","@meta.ua"
 	mess = message.text
 	message.text.split()
 	
@@ -233,16 +219,11 @@ def ret(message):
 
 	else:
 
-		# try:
 		chat_id = message.chat.id
 		user_dict[chat_id] = User(ref_data["my_email"]) # Передаем значение в класс, а потом в словарь 
 
 		msg = bot.send_message(message.chat.id,'Можешь ввести свой пароль:',reply_markup = markup_exit) # Спрашиваем пароль
 		bot.register_next_step_handler(msg,ret4)
-
-		# except Exception as e:
-		# 	bot.reply_to(message,'Что-то неправильно!!!',reply_markup = markup)
-		
 
 def ret4(message):
 	user_id = message.from_user.id
@@ -255,21 +236,15 @@ def ret4(message):
 		bot.clear_step_handler_by_chat_id(chat_id=message.chat.id)
 
 	else:	
-
-		# try:
-		if user_id == 1074201738:
-			user.password = ref_data["pass_"]
+		if user_id == мой user_id:
+			user.password = ref_data["pass_"] # Беру свой пароль из базы данных
 				
 		else:
 			user.password = message.text
 			bot.delete_message(message.chat.id, message.message_id) #  Удаляем сообщение, чтобы пароль нельзя было увидеть
 		
-		msg = bot.send_message(message.chat.id,'<strong>Введите получателя:</strong>', parse_mode = 'html',reply_markup = markup_gmails) # Спрашиваем получателя
+		msg = bot.send_message(message.chat.id,'<strong>Введите получателя:</strong>', parse_mode = 'html') # Спрашиваем получателя
 		bot.register_next_step_handler(msg,ret2)
-
-		# except Exception as e:
-		# 	bot.reply_to(message,'Что-то неправильно!!!',reply_markup = markup)
-		
 
 def ret2(message):
 
@@ -283,24 +258,7 @@ def ret2(message):
 		
 
 	else:
-		# Берём значения из словаря "teach"
-		if message.text == "Немецкий":
-			user.tosomeone = teach["nem"]
-
-		elif message.text == "Физ-ра":
-			user.tosomeone = teach["fiz"]
-
-		elif message.text == "География":
-			user.tosomeone = teach["geo"]
-
-		elif message.text == "Украинский":
-			user.tosomeone = teach["ukr"]
-
-		elif message.text == "Моя почта вторая":
-			user.tosomeone = teach["my"]
-
-		else:
-			user.tosomeone = message.text
+		user.tosomeone = message.text
 
 		# Новая клавиатура для темы сообщения
 		markup_tema = types.ReplyKeyboardMarkup(resize_keyboard = True,one_time_keyboard = True,row_width = 1)
@@ -343,6 +301,7 @@ def ret3(message):
 		except Exception as e:
 			bot.reply_to(message,'Что-то неправильно!!!',reply_markup = markup)	
 
+# Переназовите функции потому, что названия просто дурацкие			
 def nefinal(message):
 
 	mess = message.text
@@ -400,6 +359,7 @@ def nefinal2(message):
 
 				except smtplib.SMTPAuthenticationError as e:
 					bot.send_message(message.chat.id,"Вы ввели недействительный адрес или пароль!!!",reply_markup = markup)# Ловим ошибку, если пользователь ввёл неправильные данные
+			
 			except smtplib.SMTPRecipientsRefused as e:
 				bot.send_message(message.chat.id,'Вы ввели недействительного получателя!!!')
 		else:
@@ -776,3 +736,7 @@ def wer(message):
 
 if __name__ == '__main__':
 	bot.polling(none_stop = True)
+	
+# Надеюсь, что мой код не настолько отвратный как кажется
+	
+	
